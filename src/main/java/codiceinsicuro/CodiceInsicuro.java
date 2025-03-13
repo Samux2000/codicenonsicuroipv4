@@ -2,6 +2,7 @@ package codiceinsicuro;
 //aa
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,19 +16,18 @@ public class CodiceInsicuro {
 		}
 		String inputSanificato = sanificaInput(userInput);
 		try {
-			ProcessBuilder builder = new ProcessBuilder("ping", "-c", "4", inputSanificato);
-			builder.redirectErrorStream(true); // Combina stdout e stderr
-			Process process = builder.start();
+            // Esegui il ping tramite la API InetAddress di Java, senza usare la shell
+            InetAddress address = InetAddress.getByName(inputSanificato);
+            boolean reachable = address.isReachable(5000); // Timeout di 5 secondi
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-			String line;
-			while ((line = reader.readLine()) != null) {
-				System.out.println(line);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+            if (reachable) {
+                System.out.println("L'host " + inputSanificato + " è raggiungibile.");
+            } else {
+                System.out.println("L'host " + inputSanificato + " non è raggiungibile.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 
 	public static String sanificaInput(String userInput) {
